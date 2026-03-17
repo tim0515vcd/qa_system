@@ -10,6 +10,9 @@ from app.schemas.search import (
     VectorSearchRequest,
     VectorSearchResponse,
     VectorSearchResultItem,
+    HybridSearchRequest,
+    HybridSearchResponse,
+    HybridSearchResultItem,
 )
 from app.schemas.feedback import FeedbackRequest, FeedbackResponse
 
@@ -17,6 +20,7 @@ from app.services.search_service import (
     search_chunks,
     save_search_query,
     vector_search_chunks,
+    hybrid_search_chunks,
 )
 from app.services.feedback_service import create_feedback
 
@@ -112,6 +116,44 @@ def vector_search_api(
     )
 
     return VectorSearchResponse(
+        search_query_id=search_record.id,
+        query=payload.query,
+        total=len(items),
+        items=items,
+    )
+
+
+@router.post("/hybrid", response_model=HybridSearchResponse)
+def hybrid_search_api(
+    payload: HybridSearchRequest,
+    db: DbSession,
+):
+    results = hybrid_search_chunks(payload.query, db, payload.limit)
+
+    items = [
+        HybridSearchResultItem(
+            chunk_id=row["chunk_id"],
+            document_id=row["document_id"],
+            chunk_index=row["chunk_index"],
+            document_title=row["document_title"],
+            content=row["content"],
+            token_count=row["token_count"],
+            created_at=row["created_at"],
+            hybrid_score=float(row["hybrid_score"]),
+            matched_by_fts=bool(row["matched_by_fts"]),
+            matched_by_vector=bool(row["matched_by_vector"]),
+        )
+        for row in results
+    ]
+
+    search_record = save_search_query(
+        query=payload.query,
+        result_count=len(items),
+        db=db,
+        retrieval_mode="hybrid",
+    )
+
+    return HybridSearchResponse(
         search_query_id=search_record.id,
         query=payload.query,
         total=len(items),

@@ -94,3 +94,74 @@ def vector_search_chunks(query: str, db: Session, limit: int = 5):
     )
 
     return rows
+
+
+def hybrid_search_chunks(query: str, db: Session, limit: int = 5):
+    """
+    最小版 hybrid search：
+    1. 跑 FTS
+    2. 跑 vector
+    3. 以 chunk_id 合併去重
+    4. 若同時被兩邊命中，給較高 hybrid_score
+    """
+    fts_rows = search_chunks(query, db, limit)
+    vector_rows = vector_search_chunks(query, db, limit)
+
+    merged: dict[str, dict] = {}
+
+    # 先放 FTS 結果
+    for rank, row in enumerate(fts_rows):
+        chunk_id = str(row["chunk_id"])
+        merged[chunk_id] = {
+            "chunk_id": row["chunk_id"],
+            "document_id": row["document_id"],
+            "chunk_index": row["chunk_index"],
+            "document_title": row["document_title"],
+            "content": row["content"],
+            "token_count": row["token_count"],
+            "created_at": row["created_at"],
+            "matched_by_fts": True,
+            "matched_by_vector": False,
+            # FTS 先用 rank-based 分數，名次越前分數越高
+            "fts_score": 1.0 / (rank + 1),
+            "vector_score": 0.0,
+        }
+
+    # 再合併 vector 結果
+    for rank, row in enumerate(vector_rows):
+        chunk_id = str(row["chunk_id"])
+
+        # vector 的 score 是 distance，越小越好
+        distance = float(row["score"])
+        similarity_score = 1.0 / (1.0 + distance)
+
+        if chunk_id in merged:
+            merged[chunk_id]["matched_by_vector"] = True
+            merged[chunk_id]["vector_score"] = similarity_score
+        else:
+            merged[chunk_id] = {
+                "chunk_id": row["chunk_id"],
+                "document_id": row["document_id"],
+                "chunk_index": row["chunk_index"],
+                "document_title": row["document_title"],
+                "content": row["content"],
+                "token_count": row["token_count"],
+                "created_at": row["created_at"],
+                "matched_by_fts": False,
+                "matched_by_vector": True,
+                "fts_score": 0.0,
+                "vector_score": similarity_score,
+            }
+
+    # 算 hybrid_score
+    items = []
+    for value in merged.values():
+        bonus = 0.3 if value["matched_by_fts"] and value["matched_by_vector"] else 0.0
+        hybrid_score = value["fts_score"] + value["vector_score"] + bonus
+
+        value["hybrid_score"] = hybrid_score
+        items.append(value)
+
+    items.sort(key=lambda x: x["hybrid_score"], reverse=True)
+
+    return items[:limit]

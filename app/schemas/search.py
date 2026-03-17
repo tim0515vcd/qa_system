@@ -51,3 +51,32 @@ class VectorSearchResponse(BaseModel):
     query: str
     total: int
     items: list[VectorSearchResultItem]
+
+
+class HybridSearchRequest(BaseModel):
+    query: str = Field(..., min_length=1)
+    limit: int = Field(default=5, ge=1, le=20)
+
+
+class HybridSearchResultItem(BaseModel):
+    chunk_id: UUID
+    document_id: UUID
+    chunk_index: int
+    document_title: str
+    content: str
+    token_count: int | None
+    created_at: datetime
+
+    # hybrid 分數，越大越好
+    hybrid_score: float
+
+    # 額外保留來源資訊，方便 debug
+    matched_by_fts: bool
+    matched_by_vector: bool
+
+
+class HybridSearchResponse(BaseModel):
+    search_query_id: UUID
+    query: str
+    total: int
+    items: list[HybridSearchResultItem]
