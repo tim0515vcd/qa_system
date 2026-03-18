@@ -2,10 +2,22 @@
 set -euo pipefail
 
 PROJECT_DIR="${1:-/home/euler/QA_SYSTEM}"
+BACKEND_DIR="${PROJECT_DIR}/backend"
+FRONTEND_DIR="${PROJECT_DIR}/frontend"
 
 echo "==> Checking project directory..."
 if [[ ! -d "$PROJECT_DIR" ]]; then
   echo "Project directory not found: $PROJECT_DIR"
+  exit 1
+fi
+
+if [[ ! -d "$BACKEND_DIR" ]]; then
+  echo "Backend directory not found: $BACKEND_DIR"
+  exit 1
+fi
+
+if [[ ! -d "$FRONTEND_DIR" ]]; then
+  echo "Frontend directory not found: $FRONTEND_DIR"
   exit 1
 fi
 
@@ -51,6 +63,9 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plug
 echo "==> Enabling Docker service..."
 sudo systemctl enable docker
 sudo systemctl start docker
+
+echo "==> Installing Node.js and npm..."
+sudo apt-get install -y nodejs npm
 
 NEED_NEWGRP=0
 if ! groups "$USER" | grep -q '\bdocker\b'; then
