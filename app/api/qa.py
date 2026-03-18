@@ -32,7 +32,11 @@ def ask_question(
                 document_id=item["document_id"],
                 chunk_index=item["chunk_index"],
                 document_title=item["document_title"],
-                content=item["content"],
+                snippet=item["snippet"],
+                full_content=item["full_content"],
+                matched_by_fts=item["matched_by_fts"],
+                matched_by_vector=item["matched_by_vector"],
+                hybrid_score=item["hybrid_score"],
                 created_at=item["created_at"],
             )
             for item in qa_result["citations"]

@@ -13,7 +13,17 @@ class CitationItem(BaseModel):
     document_id: UUID
     chunk_index: int
     document_title: str
-    content: str
+
+    # 給前端顯示的短摘要
+    snippet: str
+
+    # 保留完整 chunk 內容，方便展開檢視
+    full_content: str
+
+    matched_by_fts: bool
+    matched_by_vector: bool
+    hybrid_score: float
+
     created_at: datetime
 
 
