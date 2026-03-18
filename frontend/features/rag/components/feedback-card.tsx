@@ -66,14 +66,14 @@ export function FeedbackCard({
             id="feedback-comment"
             value={feedbackComment}
             onChange={(e) => onCommentChange(e.target.value)}
-            placeholder="補充說明，可留空!!!!"
+            placeholder="補充說明，可留空"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Button
             variant="secondary"
-            className="rounded-2xl"
+            className="rounded-2xl bg-sky-50"
             disabled={!searchQueryId || feedbackLoading !== null}
             onClick={() => onSubmit("like")}
           >
