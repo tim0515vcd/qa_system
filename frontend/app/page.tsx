@@ -1,5 +1,5 @@
-import RagQaFrontendDemo from "@/components/rag-qa-demo";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <RagQaFrontendDemo />;
+  redirect("/rag");
 }
