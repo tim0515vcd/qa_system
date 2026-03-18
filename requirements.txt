@@ -5,3 +5,4 @@ sqlalchemy==2.0.39
 alembic==1.15.1
 python-multipart==0.0.9
 pgvector==0.3.6
+google-genai
