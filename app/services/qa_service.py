@@ -3,10 +3,12 @@ from app.services.search_service import hybrid_search_chunks
 
 def answer_question(query: str, db, limit: int = 5):
     """
-    第一版 QA：
-    先用 hybrid retrieval 找 chunks，
-    再用最簡單的規則式答案拼接。
-    後面再換成 LLM 生成。
+    第二版 QA：
+    1. 用 hybrid retrieval 找 chunks
+    2. 取前幾個 chunks 做簡單整理
+    3. 回傳 answer + citations
+
+    先不用 LLM，讓 retrieval-backed QA 先完整。
     """
     results = hybrid_search_chunks(query, db, limit)
 
@@ -16,10 +18,34 @@ def answer_question(query: str, db, limit: int = 5):
             "citations": [],
         }
 
-    # 第一版先直接拿最相關 chunk 當主要答案
-    top_chunk = results[0]["content"].strip()
+    # 取前 3 筆最相關結果來組答案
+    top_results = results[:3]
 
-    answer = f"根據目前找到的文件內容，最相關資訊如下：\n\n{top_chunk}"
+    # 避免重複內容一直出現在答案裡
+    seen_contents = set()
+    summary_parts = []
+
+    for row in top_results:
+        content = row["content"].strip()
+        if not content:
+            continue
+
+        if content in seen_contents:
+            continue
+
+        seen_contents.add(content)
+        summary_parts.append(
+            f"來源《{row['document_title']}》第 {row['chunk_index']} 段：\n{content}"
+        )
+
+    if not summary_parts:
+        answer = "找到相關文件，但無法整理出可用內容。"
+    elif len(summary_parts) == 1:
+        answer = f"根據目前找到的文件內容，最相關資訊如下：\n\n{summary_parts[0]}"
+    else:
+        answer = "根據目前找到的文件內容，整理出以下重點：\n\n" + "\n\n---\n\n".join(
+            summary_parts
+        )
 
     citations = [
         {
