@@ -1,8 +1,34 @@
-def fake_embedding(text: str, dim: int = 384) -> list[float]:
-    """
-    臨時用的假 embedding。
-    現在只為了先打通 vector search pipeline。
-    後面會換成真正的 embedding model。
-    """
-    base = sum(ord(c) for c in text) % 1000
-    return [((base + i) % 1000) / 1000.0 for i in range(dim)]
+import os
+from google import genai
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+
+def gemini_document_embedding(text: str) -> list[float]:
+    try:
+        response = client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=text,
+            config={
+                "output_dimensionality": 384,
+                "task_type": "RETRIEVAL_DOCUMENT",
+            },
+        )
+        return response.embeddings[0].values
+    except Exception as e:
+        raise RuntimeError(f"embedding generation failed: {e}")
+
+
+def gemini_query_embedding(text: str) -> list[float]:
+    try:
+        response = client.models.embed_content(
+            model="gemini-embedding-001",
+            contents=text,
+            config={
+                "output_dimensionality": 384,
+                "task_type": "RETRIEVAL_QUERY",
+            },
+        )
+        return response.embeddings[0].values
+    except Exception as e:
+        raise RuntimeError(f"embedding generation failed: {e}")

@@ -1,10 +1,8 @@
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from app.models.chunk import DocumentChunk
-from app.models.document import Document
 from app.models.search_query import SearchQuery
 
-from app.services.embedding_service import fake_embedding
+from app.services.embedding_service import gemini_query_embedding
 
 
 def search_chunks(query: str, db: Session, limit: int = 5):
@@ -60,7 +58,7 @@ def vector_search_chunks(query: str, db: Session, limit: int = 5):
     用 fake embedding 產生 query vector，
     再用 pgvector cosine distance 做最近鄰搜尋。
     """
-    query_embedding = fake_embedding(query)
+    query_embedding = gemini_query_embedding(query)
 
     sql = text(
         """

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models.document import Document
 from app.models.chunk import DocumentChunk
-from app.services.embedding_service import fake_embedding
+from app.services.embedding_service import gemini_document_embedding
 
 
 def simple_markdown_chunk(
@@ -80,7 +80,7 @@ def ingest_document(document_id: str, db: Session) -> dict:
                 chunk_index=idx,
                 content=chunk_text,
                 token_count=len(chunk_text),  # 先暫時用字元數代替
-                embedding=fake_embedding(chunk_text),
+                embedding=gemini_document_embedding(chunk_text),
                 metadata_={"source_type": document.source_type},
             )
         )
