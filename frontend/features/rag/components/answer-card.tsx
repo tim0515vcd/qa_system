@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertCircle,
   ChevronDown,
@@ -40,6 +41,8 @@ export function AnswerCard({
   feedbackMessage,
   onSubmitFeedback,
 }: Props) {
+  const t = useTranslations("Answer");
+
   if (!messages.length) {
     return (
       <div className="mx-auto flex min-h-[calc(100vh-260px)] w-full max-w-4xl items-center justify-center px-4 py-8 md:px-6">
@@ -47,9 +50,11 @@ export function AnswerCard({
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white">
             <MessageSquareQuote className="h-6 w-6" />
           </div>
-          <h2 className="text-2xl font-semibold tracking-tight">開始你的問答</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            {t("startTitle")}
+          </h2>
           <p className="mt-2 text-sm leading-7 text-slate-500">
-            在下方輸入問題，我會用已 ingest 的文件進行檢索並產生回答。
+            {t("startDescription")}
           </p>
         </div>
       </div>
@@ -98,6 +103,7 @@ function AssistantMessage({
   feedbackMessage: string | null;
   onSubmitFeedback: (searchQueryId: string, type: FeedbackType) => void;
 }) {
+  const t = useTranslations("Answer");
   const [showCitations, setShowCitations] = useState(false);
 
   return (
@@ -106,7 +112,7 @@ function AssistantMessage({
         {message.loading && (
           <div className="flex items-center gap-2 text-slate-600">
             <Loader2 className="h-4 w-4 animate-spin" />
-            正在查詢並生成回答...
+            {t("loading")}
           </div>
         )}
 
@@ -134,7 +140,7 @@ function AssistantMessage({
                 ) : (
                   <ChevronDown className="mr-2 h-4 w-4" />
                 )}
-                查看來源
+                {t("showSources")}
                 <Badge variant="secondary" className="ml-2">
                   {message.citations?.length ?? 0}
                 </Badge>
@@ -157,7 +163,7 @@ function AssistantMessage({
                     ) : (
                       <ThumbsUp className="mr-2 h-4 w-4" />
                     )}
-                    有幫助
+                    {t("helpful")}
                   </Button>
 
                   <Button
@@ -175,7 +181,7 @@ function AssistantMessage({
                     ) : (
                       <ThumbsDown className="mr-2 h-4 w-4" />
                     )}
-                    需要改進
+                    {t("needsImprovement")}
                   </Button>
                 </>
               )}
@@ -192,7 +198,7 @@ function AssistantMessage({
                 <div className="space-y-3">
                   {!message.citations?.length ? (
                     <div className="rounded-2xl border border-dashed p-4 text-sm text-slate-500">
-                      目前沒有 citations。
+                      {t("noCitations")}
                     </div>
                   ) : (
                     message.citations.map((citation, idx) => (
@@ -220,6 +226,7 @@ function CitationItem({
   citation: Citation;
   index: number;
 }) {
+  const t = useTranslations("Answer");
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -227,12 +234,14 @@ function CitationItem({
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">#{index + 1}</Badge>
         <Badge variant="secondary">{citation.document_title}</Badge>
-        <Badge variant="outline">chunk {citation.chunk_index}</Badge>
+        <Badge variant="outline">
+          {t("chunk")} {citation.chunk_index}
+        </Badge>
         <Badge variant={citation.matched_by_fts ? "default" : "outline"}>
-          FTS {citation.matched_by_fts ? "命中" : "未命中"}
+          FTS {citation.matched_by_fts ? t("matched") : t("notMatched")}
         </Badge>
         <Badge variant={citation.matched_by_vector ? "default" : "outline"}>
-          Vector {citation.matched_by_vector ? "命中" : "未命中"}
+          Vector {citation.matched_by_vector ? t("matched") : t("notMatched")}
         </Badge>
         <Badge variant="secondary">
           score {citation.hybrid_score.toFixed(4)}
@@ -250,12 +259,12 @@ function CitationItem({
       >
         {expanded ? (
           <>
-            收起完整內容
+            {t("collapseFullContent")}
             <ChevronUp className="ml-1 h-4 w-4" />
           </>
         ) : (
           <>
-            展開完整內容
+            {t("expandFullContent")}
             <ChevronDown className="ml-1 h-4 w-4" />
           </>
         )}

@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { env } from "@/lib/env";
+import {LocaleSwitcher} from "@/components/locale-switcher";
 import { DEFAULT_LIMIT, DEFAULT_QUERY } from "../constants/rag";
 import { useDocumentIngest } from "../hooks/use-document-ingest";
 import { useRagQa } from "../hooks/use-rag-qa";
@@ -15,6 +17,7 @@ import { QaFormCard } from "./qa-form-card";
 import { UploadCard } from "./upload-card";
 
 export function RagPage() {
+  const t = useTranslations("RagPage");
   const [apiBase, setApiBase] = useState(env.NEXT_PUBLIC_API_BASE);
   const [query, setQuery] = useState(DEFAULT_QUERY);
   const [limit, setLimit] = useState(String(DEFAULT_LIMIT));
@@ -35,13 +38,20 @@ export function RagPage() {
   const {
     uploading,
     ingesting,
+    chunkLoading,
     error: documentError,
     message: documentMessage,
-    uploadResult,
-    ingestResult,
-    chunksResult,
-    runUploadAndIngest,
+    queue,
+    selectedQueueId,
+    selectedItem,
+    setSelectedQueueId,
+    runBatchUploadAndIngest,
+    clearQueue,
   } = useDocumentIngest({ apiBase });
+
+  const handleUploadAndIngest = async (files: File[]) => {
+    await runBatchUploadAndIngest(files, "markdown");
+  };
 
   const handleAsk = async () => {
     const currentQuery = query;
@@ -53,9 +63,6 @@ export function RagPage() {
     runFeedback(searchQueryId, type, feedbackReason, feedbackComment);
   };
 
-  const handleUploadAndIngest = (file: File) => {
-    runUploadAndIngest(file, "markdown");
-  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -66,29 +73,22 @@ export function RagPage() {
           transition={{ duration: 0.2 }}
           className="mb-6"
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold tracking-tight">RAG Console</h1>
-              <p className="mt-1 text-sm text-slate-500">
-                文件處理與問答操作分開，問答區支援對話堆疊。
-              </p>
+          <div className="relative">
+            <div className="text-center">
+              <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
+              <p className="mt-1 text-sm text-slate-500">{t("subtitle")}</p>
             </div>
 
-            <Button
-              variant="outline"
-              className="rounded-xl"
-              onClick={clearMessages}
-              disabled={!messages.length}
-            >
-              清除對話
-            </Button>
+            <div className="mt-3 flex justify-center gap-3 sm:absolute sm:right-0 sm:top-1/2 sm:mt-0 sm:-translate-y-1/2">
+              <LocaleSwitcher />
+            </div>
           </div>
         </motion.div>
 
         <Tabs defaultValue="qa" className="space-y-6">
-          <TabsList className="grid w-full max-w-sm grid-cols-2">
-            <TabsTrigger value="qa">問答查詢</TabsTrigger>
-            <TabsTrigger value="upload">文件上傳</TabsTrigger>
+          <TabsList className="mx-auto grid w-fit grid-cols-2">
+            <TabsTrigger value="qa">{t("tabs.qa")}</TabsTrigger>
+            <TabsTrigger value="upload">{t("tabs.upload")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="qa" className="mt-0">
@@ -113,29 +113,31 @@ export function RagPage() {
                 onQueryChange={setQuery}
                 onLimitChange={setLimit}
                 onSubmit={handleAsk}
+                onClear={clearMessages}
+                canClear={messages.length > 0}
               />
             </div>
           </TabsContent>
 
           <TabsContent value="upload" className="mt-0">
-            <div className="grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
-              <div className="space-y-6">
-                <UploadCard
-                  uploading={uploading}
-                  ingesting={ingesting}
-                  message={documentMessage}
-                  error={documentError}
-                  onSubmit={handleUploadAndIngest}
-                />
-              </div>
+            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
+              <UploadCard
+                uploading={uploading}
+                ingesting={ingesting}
+                message={documentMessage}
+                error={documentError}
+                queue={queue}
+                selectedQueueId={selectedQueueId}
+                onSelectQueueItem={setSelectedQueueId}
+                onSubmit={handleUploadAndIngest}
+                onClearQueue={clearQueue}
+              />
 
-              <div className="space-y-6">
-                <IngestResultCard
-                  uploadResult={uploadResult}
-                  ingestResult={ingestResult}
-                  chunksResult={chunksResult}
-                />
-              </div>
+              <IngestResultCard
+                uploadResult={selectedItem?.uploadResult ?? null}
+                ingestResult={selectedItem?.ingestResult ?? null}
+                chunksResult={selectedItem?.chunksResult ?? null}
+              />
             </div>
           </TabsContent>
         </Tabs>

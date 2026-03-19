@@ -54,7 +54,18 @@
       "ingesting": "Ingesting",
       "success": "Completed",
       "error": "Failed"
-    }
+    },
+    "filters": {
+      "all": "All",
+      "failedOnly": "Failed only"
+    },
+    "summary": {
+      "total": "Total",
+      "success": "Success",
+      "failed": "Failed",
+      "processing": "Processing"
+    },
+    "emptyFilteredQueue": "No items match the current filter."
   },
   "IngestResult": {
     "title": "Document Processing Result",
@@ -73,6 +84,8 @@
       "chunksCreated": "chunks_created"
     },
     "chunkLabel": "chunk #{index}",
-    "tokenCount": "token_count {count}"
+    "tokenCount": "token_count {count}",
+    "expandChunk": "Expand",
+    "collapseChunk": "Collapse"
   }
 }

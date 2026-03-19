@@ -54,7 +54,18 @@
       "ingesting": "ingest 中",
       "success": "完成",
       "error": "失敗"
-    }
+    },
+    "filters": {
+      "all": "全部",
+      "failedOnly": "只看失敗"
+    },
+    "summary": {
+      "total": "總數",
+      "success": "成功",
+      "failed": "失敗",
+      "processing": "處理中"
+    },
+    "emptyFilteredQueue": "目前沒有符合篩選條件的項目。"
   },
   "IngestResult": {
     "title": "文件處理結果",
@@ -73,6 +84,8 @@
       "chunksCreated": "chunks_created"
     },
     "chunkLabel": "chunk #{index}",
-    "tokenCount": "token_count {count}"
+    "tokenCount": "token_count {count}",
+    "expandChunk": "展開",
+    "collapseChunk": "收合"
   }
 }

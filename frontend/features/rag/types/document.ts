@@ -30,3 +30,20 @@ export type DocumentChunkListResponse = {
   items: DocumentChunkItem[];
   total: number;
 };
+
+export type UploadQueueItemStatus =
+  | "idle"
+  | "uploading"
+  | "ingesting"
+  | "success"
+  | "error";
+
+export type UploadQueueItem = {
+  id: string;
+  fileName: string;
+  status: UploadQueueItemStatus;
+  error: string | null;
+  uploadResult: UploadDocumentResponse | null;
+  ingestResult: IngestDocumentResponse | null;
+  chunksResult: DocumentChunkListResponse | null;
+};
