@@ -27,9 +27,20 @@ def generate_answer_with_gemini(query: str, context_blocks: list[str]) -> str:
 請只根據上面的文件片段回答，不要自行補充未提供的資訊。
 """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt,
-    )
+    try:
+        response = client.models.generate_content(
+            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            contents=prompt,
+        )
+        return (response.text or "").strip() or "找不到足夠資訊。"
 
-    return (response.text or "").strip() or "找不到足夠資訊。"
+    except Exception as e:
+        error_text = str(e)
+
+        if "RESOURCE_EXHAUSTED" in error_text or "quota" in error_text.lower():
+            return "目前生成模型額度已達上限，請稍後再試。"
+
+        if "API key" in error_text or "api_key" in error_text.lower():
+            return "Gemini API 金鑰設定有問題，請檢查 GEMINI_API_KEY。"
+
+        return f"LLM 生成失敗：{error_text}"
