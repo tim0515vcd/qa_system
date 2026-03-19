@@ -31,3 +31,14 @@ export type SubmitFeedbackPayload = {
   reason: FeedbackReason;
   comment: string | null;
 };
+
+export type ChatMessage = {
+  id: string;
+  role: "user" | "assistant";
+  query?: string;
+  answer?: string;
+  citations?: Citation[];
+  search_query_id?: string;
+  error?: string;
+  loading?: boolean;
+};
