@@ -1,0 +1,78 @@
+{
+  "Common": {
+    "appName": "RAG Console",
+    "language": "Language"
+  },
+  "RagPage": {
+    "title": "RAG Console",
+    "subtitle": "Separate document processing from Q&A",
+    "tabs": {
+      "qa": "Q&A",
+      "upload": "Upload"
+    },
+    "actions": {
+      "clearChat": "Clear chat"
+    }
+  },
+  "QaComposer": {
+    "placeholder": "Ask if you want",
+    "submit": "Send",
+    "advanced": "Advanced settings",
+    "clearChat": "Clear chat",
+    "citationCount": "Citation count",
+    "apiBasePlaceholder": "http://localhost:8000"
+  },
+  "Answer": {
+    "startTitle": "Start a conversation",
+    "startDescription": "Enter your question below and I’ll answer based on the ingested documents.",
+    "loading": "Searching and generating an answer...",
+    "showSources": "Show sources",
+    "helpful": "Helpful",
+    "needsImprovement": "Needs improvement",
+    "noCitations": "No citations available.",
+    "chunk": "chunk",
+    "matched": "matched",
+    "notMatched": "not matched",
+    "expandFullContent": "Expand full content",
+    "collapseFullContent": "Collapse full content"
+  },
+  "Upload": {
+    "title": "Upload & Ingest Document",
+    "description": "Upload documents, then the system will create document records and ingest them one by one.",
+    "dropzoneTitle": "Drag and drop files here",
+    "dropzoneDescription": "Or click this area to choose one or more files",
+    "browse": "Choose files",
+    "hint": "The backend currently supports markdown ingest only. Please upload .md / .txt first.",
+    "selectedFiles": "{count} file(s) selected",
+    "submitMultiple": "Upload and run ingest for multiple files",
+    "processing": "Processing...",
+    "clearQueue": "Clear list",
+    "queueTitle": "Processing queue",
+    "statuses": {
+      "idle": "Waiting",
+      "uploading": "Uploading",
+      "ingesting": "Ingesting",
+      "success": "Completed",
+      "error": "Failed"
+    }
+  },
+  "IngestResult": {
+    "title": "Document Processing Result",
+    "description": "Displays the results of upload, ingest, and chunks.",
+    "empty": "No document processing result yet.",
+    "sections": {
+      "upload": "Upload",
+      "ingest": "Ingest",
+      "chunks": "Chunks ({total} total)"
+    },
+    "fields": {
+      "documentId": "document_id",
+      "title": "title",
+      "sourceType": "source_type",
+      "status": "status",
+      "chunksCreated": "chunks_created"
+    },
+    "chunkLabel": "chunk #{index}",
+    "tokenCount": "token_count {count}"
+  }
+}

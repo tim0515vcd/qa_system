@@ -1,0 +1,78 @@
+{
+  "Common": {
+    "appName": "RAG Console",
+    "language": "語言"
+  },
+  "RagPage": {
+    "title": "RAG Console",
+    "subtitle": "文件處理與問答操作分開",
+    "tabs": {
+      "qa": "問答查詢",
+      "upload": "文件上傳"
+    },
+    "actions": {
+      "clearChat": "清除對話"
+    }
+  },
+  "QaComposer": {
+    "placeholder": "想問就問",
+    "submit": "送出",
+    "advanced": "進階設定",
+    "clearChat": "清除對話",
+    "citationCount": "Citation 數量",
+    "apiBasePlaceholder": "http://localhost:8000"
+  },
+  "Answer": {
+    "startTitle": "開始你的問答",
+    "startDescription": "在下方輸入問題，我會用已 ingest 的文件進行檢索並產生回答。",
+    "loading": "正在查詢並生成回答...",
+    "showSources": "查看來源",
+    "helpful": "有幫助",
+    "needsImprovement": "需要改進",
+    "noCitations": "目前沒有 citations。",
+    "chunk": "chunk",
+    "matched": "命中",
+    "notMatched": "未命中",
+    "expandFullContent": "展開完整內容",
+    "collapseFullContent": "收起完整內容"
+  },
+  "Upload": {
+    "title": "文件上傳與 Ingest",
+    "description": "上傳文件後，系統會建立文件紀錄並逐一執行 ingest。",
+    "dropzoneTitle": "拖曳檔案到這裡",
+    "dropzoneDescription": "或點擊此區塊選擇一個或多個檔案",
+    "browse": "選擇檔案",
+    "hint": "目前後端 ingest 只支援 markdown，建議先上傳 .md / .txt。",
+    "selectedFiles": "已選擇 {count} 個檔案",
+    "submitMultiple": "上傳並執行多檔 ingest",
+    "processing": "處理中...",
+    "clearQueue": "清除列表",
+    "queueTitle": "處理進度",
+    "statuses": {
+      "idle": "等待中",
+      "uploading": "上傳中",
+      "ingesting": "ingest 中",
+      "success": "完成",
+      "error": "失敗"
+    }
+  },
+  "IngestResult": {
+    "title": "文件處理結果",
+    "description": "顯示 upload、ingest 與 chunks 的結果。",
+    "empty": "還沒有文件處理結果。",
+    "sections": {
+      "upload": "Upload",
+      "ingest": "Ingest",
+      "chunks": "Chunks（共 {total} 筆）"
+    },
+    "fields": {
+      "documentId": "document_id",
+      "title": "title",
+      "sourceType": "source_type",
+      "status": "status",
+      "chunksCreated": "chunks_created"
+    },
+    "chunkLabel": "chunk #{index}",
+    "tokenCount": "token_count {count}"
+  }
+}
