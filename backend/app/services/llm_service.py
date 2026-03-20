@@ -1,7 +1,7 @@
-import os
 from google import genai
+from app.core.settings import settings
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=settings.gemini_api_key)
 
 
 def generate_answer_with_gemini(query: str, context_blocks: list[str]) -> str:
@@ -29,7 +29,7 @@ def generate_answer_with_gemini(query: str, context_blocks: list[str]) -> str:
 
     try:
         response = client.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+            model=settings.gemini_model,
             contents=prompt,
         )
         return (response.text or "").strip() or "找不到足夠資訊。"

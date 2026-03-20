@@ -1,6 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from app.core.settings import settings
 
 # 從環境變數組出 PostgreSQL 連線字串
 # 這裡 host 用的是 docker compose 裡的 service 名稱 db
@@ -11,7 +12,7 @@ DATABASE_URL = (
 
 # 建立 SQLAlchemy Engine
 # pool_pre_ping=True 可避免連線池中有失效連線時直接炸掉
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+engine = create_engine(settings.database_url, pool_pre_ping=True)
 
 # 建立 DB Session 工廠
 # autoflush=False: 避免 SQLAlchemy 在你還沒準備好時自動 flush

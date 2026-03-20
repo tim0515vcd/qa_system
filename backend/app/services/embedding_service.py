@@ -1,13 +1,13 @@
-import os
 from google import genai
+from app.core.settings import settings
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=settings.gemini_api_key)
 
 
 def gemini_document_embedding(text: str) -> list[float]:
     try:
         response = client.models.embed_content(
-            model="gemini-embedding-001",
+            model=settings.gemini_embedding_model,
             contents=text,
             config={
                 "output_dimensionality": 384,
@@ -22,7 +22,7 @@ def gemini_document_embedding(text: str) -> list[float]:
 def gemini_query_embedding(text: str) -> list[float]:
     try:
         response = client.models.embed_content(
-            model="gemini-embedding-001",
+            model=settings.gemini_embedding_model,
             contents=text,
             config={
                 "output_dimensionality": 384,
