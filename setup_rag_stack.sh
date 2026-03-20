@@ -6,32 +6,13 @@ BACKEND_DIR="${PROJECT_DIR}/backend"
 FRONTEND_DIR="${PROJECT_DIR}/frontend"
 
 echo "==> Checking project directory..."
-if [[ ! -d "$PROJECT_DIR" ]]; then
-  echo "Project directory not found: $PROJECT_DIR"
-  exit 1
-fi
-
-if [[ ! -d "$BACKEND_DIR" ]]; then
-  echo "Backend directory not found: $BACKEND_DIR"
-  exit 1
-fi
-
-if [[ ! -d "$FRONTEND_DIR" ]]; then
-  echo "Frontend directory not found: $FRONTEND_DIR"
-  exit 1
-fi
-
-if [[ ! -f "$PROJECT_DIR/docker-compose.yml" ]]; then
-  echo "docker-compose.yml not found in: $PROJECT_DIR"
-  exit 1
-fi
+[[ -d "$PROJECT_DIR" ]] || { echo "Project directory not found: $PROJECT_DIR"; exit 1; }
+[[ -d "$BACKEND_DIR" ]] || { echo "Backend directory not found: $BACKEND_DIR"; exit 1; }
+[[ -d "$FRONTEND_DIR" ]] || { echo "Frontend directory not found: $FRONTEND_DIR"; exit 1; }
+[[ -f "$PROJECT_DIR/docker-compose.yml" ]] || { echo "docker-compose.yml not found in: $PROJECT_DIR"; exit 1; }
 
 echo "==> Detecting OS..."
-if [[ ! -f /etc/os-release ]]; then
-  echo "/etc/os-release not found"
-  exit 1
-fi
-
+[[ -f /etc/os-release ]] || { echo "/etc/os-release not found"; exit 1; }
 . /etc/os-release
 
 if [[ "${ID}" != "ubuntu" && "${ID}" != "debian" ]]; then
@@ -66,7 +47,11 @@ sudo systemctl start docker
 
 echo "==> Installing Node.js and npm..."
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt-get install -y nodejs npm
+sudo apt-get install -y nodejs
+
+echo "==> Node.js version"
+node -v
+npm -v
 
 NEED_NEWGRP=0
 if ! groups "$USER" | grep -q '\bdocker\b'; then
@@ -89,22 +74,34 @@ run_stack() {
   docker compose ps
 
   echo
+  echo "==> API logs (last 50 lines)"
+  docker compose logs --tail=50 api || true
+
+  echo
   echo "==> Done."
   echo "Project path: $PROJECT_DIR"
+  echo "Frontend: http://$(hostname -I | awk '{print $1}'):3000"
+  echo "API:      http://$(hostname -I | awk '{print $1}'):8000"
 }
 
 if [[ "$NEED_NEWGRP" -eq 1 ]]; then
   echo
   echo "Docker group updated. Re-running in a new shell..."
   exec newgrp docker <<EOF
+set -euo pipefail
 cd "$PROJECT_DIR"
+
 docker --version
 docker compose version
 docker compose up -d --build
 docker compose ps
 echo
+docker compose logs --tail=50 api || true
+echo
 echo "Done."
 echo "Project path: $PROJECT_DIR"
+echo "Frontend: http://\$(hostname -I | awk '{print \$1}'):3000"
+echo "API:      http://\$(hostname -I | awk '{print \$1}'):8000"
 EOF
 else
   run_stack

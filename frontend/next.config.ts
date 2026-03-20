@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
     serverActions: {
-      allowedDevOrigins: ["10.16.43.66", "localhost:3000"]
+      allowedOrigins: ["10.16.43.66", "localhost:3000"]
     }
   }
 };
