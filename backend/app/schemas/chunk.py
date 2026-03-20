@@ -9,6 +9,12 @@ class DocumentChunkItem(BaseModel):
     document_id: UUID
     chunk_index: int
     content: str
+
+    section_heading: str | None
+    heading_level: int | None
+    chunk_type: str | None
+    content_language: str | None
+
     page_number: int | None
     start_offset: int | None
     end_offset: int | None

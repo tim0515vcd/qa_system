@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+
 from sqlalchemy import String, Text, DateTime
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -22,7 +23,18 @@ class Document(Base):
     checksum: Mapped[str | None] = mapped_column(String(128), nullable=True)
     version: Mapped[int] = mapped_column(default=1)
     created_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    # 新增：文件是用哪種 parser 進來的
+    parser_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
+    # 新增：parser 版本，方便之後追 ingestion 行為
+    parser_version: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
+    # 新增：文件主語言，例 zh / en / mixed
+    content_language: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
     metadata_: Mapped[dict] = mapped_column("metadata", JSONB, default=dict)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow
     )
