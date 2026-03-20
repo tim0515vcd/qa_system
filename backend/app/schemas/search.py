@@ -43,7 +43,7 @@ class VectorSearchResultItem(BaseModel):
     content: str
     token_count: int | None
     created_at: datetime
-    score: float
+    distance: float
 
 
 class VectorSearchResponse(BaseModel):

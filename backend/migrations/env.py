@@ -9,6 +9,7 @@ from app.models.document import Document
 from app.models.chunk import DocumentChunk
 from app.models.search_query import SearchQuery
 from app.models.query_feedback import QueryFeedback
+from app.models.query_rewrite_rule import QueryRewriteRule
 
 config = context.config
 
