@@ -433,111 +433,133 @@ def ingest_document(document_id: str, db: Session) -> dict:
     if not document:
         raise NotFoundError("document not found")
 
-    # 目前 ingestion 僅支援 markdown
-    if document.source_type != "markdown":
-        raise BadRequestError("currently only markdown is supported")
-
-    # 文件紀錄有問題：缺 storage_path
-    if not document.storage_path:
-        raise BadRequestError("storage_path is empty")
-
-    file_path = Path(document.storage_path)
-
-    # DB 有記錄，但實體檔案不存在
-    if not file_path.exists():
-        raise NotFoundError("file not found on disk")
-
-    # 讀檔並做基本正規化
-    content_text = normalize_text(file_path.read_text(encoding="utf-8"))
-    if not content_text:
-        raise BadRequestError("document is empty")
-
-    # parse markdown -> sections
-    # 注意：parse_markdown_to_sections() 內也要改成丟 BadRequestError
-    parsed = parse_markdown_to_sections(content_text)
-
-    # section-aware chunking
-    chunks = chunk_sections(
-        parsed["sections"],
-        target_chars=900,
-        max_chars=1200,
-        overlap=120,
-    )
-
-    # 避免重複 ingest 時 chunks 累加
-    db.query(DocumentChunk).filter(DocumentChunk.document_id == document.id).delete()
+    # ingestion 開始：先把狀態設成 processing
+    current_metadata = document.metadata_ or {}
+    current_metadata["ingest_started_at"] = datetime.utcnow().isoformat()
+    current_metadata["last_ingest_error"] = None
+    document.metadata_ = current_metadata
+    document.status = "processing"
     db.flush()
 
-    # 建立 chunk ORM 物件
-    chunk_rows: list[DocumentChunk] = []
-    for chunk in chunks:
-        chunk_rows.append(
-            DocumentChunk(
-                document_id=document.id,
-                chunk_index=chunk["chunk_index"],
-                content=chunk["content"],
-                section_heading=chunk["section_heading"],
-                heading_level=chunk["heading_level"],
-                chunk_type=chunk["chunk_type"],
-                content_language=chunk["content_language"],
-                page_number=chunk["page_number"],
-                start_offset=chunk["start_offset"],
-                end_offset=chunk["end_offset"],
-                token_count=chunk["token_count"],
-                embedding=gemini_document_embedding(chunk["content"]),
-                metadata_=chunk["metadata"],
-            )
+    try:
+        # 目前 ingestion 僅支援 markdown
+        if document.source_type != "markdown":
+            raise BadRequestError("currently only markdown is supported")
+
+        # 文件紀錄有問題：缺 storage_path
+        if not document.storage_path:
+            raise BadRequestError("storage_path is empty")
+
+        file_path = Path(document.storage_path)
+
+        # DB 有記錄，但實體檔案不存在
+        if not file_path.exists():
+            raise NotFoundError("file not found on disk")
+
+        # 讀檔並做基本正規化
+        content_text = normalize_text(file_path.read_text(encoding="utf-8"))
+        if not content_text:
+            raise BadRequestError("document is empty")
+
+        # parse markdown -> sections
+        parsed = parse_markdown_to_sections(content_text)
+
+        # section-aware chunking
+        chunks = chunk_sections(
+            parsed["sections"],
+            target_chars=900,
+            max_chars=1200,
+            overlap=120,
         )
 
-    db.add_all(chunk_rows)
-    db.flush()
+        # 避免重複 ingest 時 chunks 累加
+        db.query(DocumentChunk).filter(
+            DocumentChunk.document_id == document.id
+        ).delete()
+        db.flush()
 
-    # 更新 document 層級欄位
-    document.parser_type = parsed["parser_type"]
-    document.parser_version = parsed["parser_version"]
-    document.content_language = parsed["document_language"]
-    document.status = "indexed"
-    document.indexed_at = datetime.utcnow()
+        # 建立 chunk ORM 物件
+        chunk_rows: list[DocumentChunk] = []
+        for chunk in chunks:
+            chunk_rows.append(
+                DocumentChunk(
+                    document_id=document.id,
+                    chunk_index=chunk["chunk_index"],
+                    content=chunk["content"],
+                    section_heading=chunk["section_heading"],
+                    heading_level=chunk["heading_level"],
+                    chunk_type=chunk["chunk_type"],
+                    content_language=chunk["content_language"],
+                    page_number=chunk["page_number"],
+                    start_offset=chunk["start_offset"],
+                    end_offset=chunk["end_offset"],
+                    token_count=chunk["token_count"],
+                    embedding=gemini_document_embedding(chunk["content"]),
+                    metadata_=chunk["metadata"],
+                )
+            )
 
-    # 將 parser metadata 併回 document metadata
-    current_metadata = document.metadata_ or {}
-    current_metadata.update(
-        {
-            "parser_type": parsed["parser_type"],
-            "parser_version": parsed["parser_version"],
-            "document_language": parsed["document_language"],
-            "ingest_section_count": len(parsed["sections"]),
-            "ingest_chunk_count": len(chunk_rows),
-            "parser_warnings": parsed["metadata"].get("warnings", []),
+        db.add_all(chunk_rows)
+        db.flush()
+
+        # 更新 document 層級欄位
+        document.parser_type = parsed["parser_type"]
+        document.parser_version = parsed["parser_version"]
+        document.content_language = parsed["document_language"]
+        document.status = "indexed"
+        document.indexed_at = datetime.utcnow()
+
+        # 將 parser metadata 併回 document metadata
+        current_metadata = document.metadata_ or {}
+        current_metadata.update(
+            {
+                "parser_type": parsed["parser_type"],
+                "parser_version": parsed["parser_version"],
+                "document_language": parsed["document_language"],
+                "ingest_section_count": len(parsed["sections"]),
+                "ingest_chunk_count": len(chunk_rows),
+                "parser_warnings": parsed["metadata"].get("warnings", []),
+                "ingest_finished_at": datetime.utcnow().isoformat(),
+                "last_ingest_error": None,
+            }
+        )
+        document.metadata_ = current_metadata
+
+        # 重建 tsvector：title + section_heading + content
+        db.execute(
+            text(
+                """
+                UPDATE document_chunks dc
+                SET content_tsv =
+                    setweight(to_tsvector('simple', coalesce(d.title, '')), 'A') ||
+                    setweight(to_tsvector('simple', coalesce(dc.section_heading, '')), 'B') ||
+                    setweight(to_tsvector('simple', coalesce(dc.content, '')), 'C')
+                FROM documents d
+                WHERE dc.document_id = d.id
+                  AND dc.document_id = :document_id
+                """
+            ),
+            {"document_id": str(document.id)},
+        )
+
+        # 這裡不 commit，交給 router 控制 transaction
+        db.flush()
+
+        return {
+            "document_id": str(document.id),
+            "chunks_created": len(chunk_rows),
+            "status": document.status,
+            "parser_type": document.parser_type,
+            "parser_version": document.parser_version,
+            "content_language": document.content_language,
         }
-    )
-    document.metadata_ = current_metadata
 
-    # 重建 tsvector：title + section_heading + content
-    db.execute(
-        text(
-            """
-            UPDATE document_chunks dc
-            SET content_tsv =
-                setweight(to_tsvector('simple', coalesce(d.title, '')), 'A') ||
-                setweight(to_tsvector('simple', coalesce(dc.section_heading, '')), 'B') ||
-                setweight(to_tsvector('simple', coalesce(dc.content, '')), 'C')
-            FROM documents d
-            WHERE dc.document_id = d.id
-              AND dc.document_id = :document_id
-            """
-        ),
-        {"document_id": str(document.id)},
-    )
-
-    # 這裡不 commit，交給 router 控制 transaction
-    db.flush()
-
-    return {
-        "document_id": str(document.id),
-        "chunks_created": len(chunk_rows),
-        "status": document.status,
-        "parser_type": document.parser_type,
-        "parser_version": document.parser_version,
-        "content_language": document.content_language,
-    }
+    except Exception as e:
+        # ingestion 失敗時，明確標成 failed，並把錯誤寫進 metadata
+        current_metadata = document.metadata_ or {}
+        current_metadata["ingest_finished_at"] = datetime.utcnow().isoformat()
+        current_metadata["last_ingest_error"] = str(e)
+        document.metadata_ = current_metadata
+        document.status = "failed"
+        db.flush()
+        raise

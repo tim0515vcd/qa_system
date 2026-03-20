@@ -34,7 +34,7 @@ def search_api(
 ):
     """
     FTS 搜尋入口。
-    這支除了查詢，也會寫 search_queries，所以需要 transaction 控制。
+    除了回傳結果，也會把可分析的 retrieval metadata 存進 search_queries。
     """
     try:
         rewrite = build_rewritten_query(payload.query, db)
@@ -53,6 +53,11 @@ def search_api(
             for row in results
         ]
 
+        selected_chunk_ids = [str(row["chunk_id"]) for row in results]
+        selected_document_ids = list(
+            dict.fromkeys(str(row["document_id"]) for row in results)
+        )
+
         search_record = save_search_query(
             query=payload.query,
             result_count=len(items),
@@ -63,6 +68,10 @@ def search_api(
                 "final_query": rewrite["final_query"],
                 "canonical_terms": rewrite["canonical_terms"],
                 "expanded_terms": rewrite["expanded_terms"],
+                "top_k": payload.limit,
+                "result_count": len(items),
+                "selected_chunk_ids": selected_chunk_ids,
+                "selected_document_ids": selected_document_ids,
             },
         )
 
@@ -119,7 +128,7 @@ def vector_search_api(
 ):
     """
     vector search 入口。
-    這支同樣會寫 search_queries。
+    額外記錄距離分數，方便之後分析 embedding 檢索品質。
     """
     try:
         rewrite = build_rewritten_query(payload.query, db)
@@ -139,6 +148,19 @@ def vector_search_api(
             for row in results
         ]
 
+        selected_chunk_ids = [str(row["chunk_id"]) for row in results]
+        selected_document_ids = list(
+            dict.fromkeys(str(row["document_id"]) for row in results)
+        )
+
+        top_scores = [
+            {
+                "chunk_id": str(row["chunk_id"]),
+                "distance": float(row["distance"]),
+            }
+            for row in results[:10]
+        ]
+
         search_record = save_search_query(
             query=payload.query,
             result_count=len(items),
@@ -149,6 +171,11 @@ def vector_search_api(
                 "final_query": rewrite["final_query"],
                 "canonical_terms": rewrite["canonical_terms"],
                 "expanded_terms": rewrite["expanded_terms"],
+                "top_k": payload.limit,
+                "result_count": len(items),
+                "selected_chunk_ids": selected_chunk_ids,
+                "selected_document_ids": selected_document_ids,
+                "top_scores": top_scores,
             },
         )
 
@@ -172,7 +199,8 @@ def hybrid_search_api(
 ):
     """
     hybrid search 入口。
-    這支也會寫 search_queries。
+    把 hybrid score / 命中來源一起存進 metadata，
+    方便後續調整 FTS / vector 權重。
     """
     try:
         rewrite = build_rewritten_query(payload.query, db)
@@ -194,6 +222,21 @@ def hybrid_search_api(
             for row in results
         ]
 
+        selected_chunk_ids = [str(row["chunk_id"]) for row in results]
+        selected_document_ids = list(
+            dict.fromkeys(str(row["document_id"]) for row in results)
+        )
+
+        top_scores = [
+            {
+                "chunk_id": str(row["chunk_id"]),
+                "hybrid_score": float(row["hybrid_score"]),
+                "matched_by_fts": bool(row["matched_by_fts"]),
+                "matched_by_vector": bool(row["matched_by_vector"]),
+            }
+            for row in results[:10]
+        ]
+
         search_record = save_search_query(
             query=payload.query,
             result_count=len(items),
@@ -204,6 +247,11 @@ def hybrid_search_api(
                 "final_query": rewrite["final_query"],
                 "canonical_terms": rewrite["canonical_terms"],
                 "expanded_terms": rewrite["expanded_terms"],
+                "top_k": payload.limit,
+                "result_count": len(items),
+                "selected_chunk_ids": selected_chunk_ids,
+                "selected_document_ids": selected_document_ids,
+                "top_scores": top_scores,
             },
         )
 
