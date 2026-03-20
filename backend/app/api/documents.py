@@ -1,13 +1,13 @@
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 from uuid import UUID
 from app.core.deps import DbSession
+from app.core.exceptions import BadRequestError
 
 from app.schemas.document import DocumentUploadResponse
 from app.schemas.chunk import DocumentChunkItem, DocumentChunkListResponse
 
 from app.services.ingestion_service import ingest_document
-from app.services.document_service import save_uploaded_file
-from app.services.document_service import list_document_chunks
+from app.services.document_service import save_uploaded_file, list_document_chunks
 
 # documents 相關 API 路由
 router = APIRouter(prefix="/api/v1/documents", tags=["documents"])
@@ -28,23 +28,26 @@ def upload_document(
 ):
     # 驗證 source_type 是否在允許清單內
     if source_type not in ALLOWED_SOURCE_TYPES:
-        raise HTTPException(status_code=400, detail="invalid source_type")
+        raise BadRequestError("invalid source_type")
 
     # 保底檢查：理論上 UploadFile 應該要有檔名
     if not file.filename:
-        raise HTTPException(status_code=400, detail="filename is required")
+        raise BadRequestError("filename is required")
 
-    # 實際檔案儲存與 DB 建立交給 service 處理
-    document = save_uploaded_file(file, source_type, db)
+    try:
+        document = save_uploaded_file(file, source_type, db)
+        db.commit()
 
-    # 回傳精簡結果給前端
-    return DocumentUploadResponse(
-        document_id=document.id,
-        title=document.title,
-        source_type=document.source_type,
-        status=document.status,
-        created_at=document.created_at,
-    )
+        return DocumentUploadResponse(
+            document_id=document.id,
+            title=document.title,
+            source_type=document.source_type,
+            status=document.status,
+            created_at=document.created_at,
+        )
+    except Exception:
+        db.rollback()
+        raise
 
 
 @router.post("/{document_id}/ingest")
@@ -54,9 +57,11 @@ def ingest_document_api(
 ):
     try:
         result = ingest_document(str(document_id), db)
+        db.commit()
         return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        db.rollback()
+        raise
 
 
 @router.get("/{document_id}/chunks", response_model=DocumentChunkListResponse)

@@ -8,6 +8,7 @@ from typing import Any
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import BadRequestError, NotFoundError
 from app.models.document import Document
 from app.models.chunk import DocumentChunk
 from app.services.embedding_service import gemini_document_embedding
@@ -148,7 +149,8 @@ def parse_markdown_to_sections(markdown_text: str) -> dict[str, Any]:
     """
     text = normalize_text(markdown_text)
     if not text:
-        raise ValueError("document is empty")
+        # 內容是空的，屬於請求內容不合法
+        raise BadRequestError("document is empty")
 
     matches = list(HEADING_RE.finditer(text))
     sections: list[dict[str, Any]] = []
@@ -420,30 +422,41 @@ def ingest_document(document_id: str, db: Session) -> dict:
     6. 重建 tsvector
     7. 更新 document 狀態 / parser info / indexed_at
     """
+    # 檢查 document_id 是否是合法 UUID
     try:
         document_uuid = uuid.UUID(document_id)
     except ValueError:
-        raise ValueError("invalid document_id")
+        raise BadRequestError("invalid document_id")
 
+    # 查詢文件是否存在
     document = db.query(Document).filter(Document.id == document_uuid).first()
     if not document:
-        raise ValueError("document not found")
+        raise NotFoundError("document not found")
 
+    # 目前 ingestion 僅支援 markdown
     if document.source_type != "markdown":
-        raise ValueError("currently only markdown is supported")
+        raise BadRequestError("currently only markdown is supported")
 
+    # 文件紀錄有問題：缺 storage_path
     if not document.storage_path:
-        raise ValueError("storage_path is empty")
+        raise BadRequestError("storage_path is empty")
 
     file_path = Path(document.storage_path)
-    if not file_path.exists():
-        raise ValueError("file not found on disk")
 
+    # DB 有記錄，但實體檔案不存在
+    if not file_path.exists():
+        raise NotFoundError("file not found on disk")
+
+    # 讀檔並做基本正規化
     content_text = normalize_text(file_path.read_text(encoding="utf-8"))
     if not content_text:
-        raise ValueError("document is empty")
+        raise BadRequestError("document is empty")
 
+    # parse markdown -> sections
+    # 注意：parse_markdown_to_sections() 內也要改成丟 BadRequestError
     parsed = parse_markdown_to_sections(content_text)
+
+    # section-aware chunking
     chunks = chunk_sections(
         parsed["sections"],
         target_chars=900,
@@ -455,6 +468,7 @@ def ingest_document(document_id: str, db: Session) -> dict:
     db.query(DocumentChunk).filter(DocumentChunk.document_id == document.id).delete()
     db.flush()
 
+    # 建立 chunk ORM 物件
     chunk_rows: list[DocumentChunk] = []
     for chunk in chunks:
         chunk_rows.append(
@@ -478,7 +492,7 @@ def ingest_document(document_id: str, db: Session) -> dict:
     db.add_all(chunk_rows)
     db.flush()
 
-    # document 層級欄位更新
+    # 更新 document 層級欄位
     document.parser_type = parsed["parser_type"]
     document.parser_version = parsed["parser_version"]
     document.content_language = parsed["document_language"]
@@ -516,7 +530,8 @@ def ingest_document(document_id: str, db: Session) -> dict:
         {"document_id": str(document.id)},
     )
 
-    db.commit()
+    # 這裡不 commit，交給 router 控制 transaction
+    db.flush()
 
     return {
         "document_id": str(document.id),

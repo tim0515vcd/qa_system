@@ -67,12 +67,7 @@ def save_search_query(
 ) -> SearchQuery:
     """
     紀錄一次搜尋行為。
-
-    正式版建議把 rewrite/debug 資訊一起存進 metadata，
-    之後你才有辦法分析：
-    - 原始 query 是什麼
-    - normalize 後變什麼
-    - 最後 FTS 實際查的是什麼
+    這裡不直接 commit，交給 router 統一控制 transaction。
     """
     record = SearchQuery(
         query=query,
@@ -81,7 +76,11 @@ def save_search_query(
         metadata_=metadata or {},
     )
     db.add(record)
-    db.commit()
+
+    # flush: 送出 SQL，但不提交 transaction
+    db.flush()
+
+    # refresh: 把 DB 當前值回填 ORM 物件
     db.refresh(record)
     return record
 

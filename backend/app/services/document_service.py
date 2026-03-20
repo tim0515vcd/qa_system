@@ -5,6 +5,7 @@ import uuid
 from uuid import UUID
 
 from sqlalchemy.orm import Session
+
 from app.models.chunk import DocumentChunk
 from app.models.document import Document
 
@@ -72,10 +73,7 @@ def save_uploaded_file(upload_file, source_type: str, db: Session) -> Document:
 
     # 寫入 DB
     db.add(document)
-    db.commit()
-
-    # refresh 讓 document 拿到 DB 端最終資料
-    # 例如 created_at、default 值等
+    db.flush()
     db.refresh(document)
 
     return document
