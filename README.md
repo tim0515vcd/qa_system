@@ -220,6 +220,9 @@ sudo bash setup_rag_stack.sh
 
 ## System Flow
 
+<details>
+<summary>Click to expand system flow diagram</summary>
+
 ```mermaid
 flowchart TD
     subgraph Ingestion Pipeline
