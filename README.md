@@ -107,32 +107,32 @@ GEMINI_API_KEY=<your-api-key>
 GEMINI_MODEL=gemini-2.5-flash
 GEMINI_EMBEDDING_MODEL=gemini-embedding-001
 
-CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://<your ip>:3000
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://<your-ip>:3000
 
 ```
 
 #### Frontend `.env.local`
 
 ```env
-NEXT_PUBLIC_API_BASE=http://<your ip>:8000
+NEXT_PUBLIC_API_BASE=http://<your-ip>:8000
 ```
 
 ### 4. Install pkg and run the service 
 
 ```bash
-cd <your folder>
+cd <your-project-folder>
 sudo bash setup_rag_stack.sh
 ```
 Frontend runs at:
 
 ```text
-http://localhost:3000 or http://<your ip>:3000
+http://localhost:3000 or http://<your-ip>:3000
 ```
 
 Backend runs at:
 
 ```text
-http://localhost:8000 or http://<your ip>:8000
+http://localhost:8000 or http://<your-ip>:8000
 ```
 
 ### 5. Use the app
