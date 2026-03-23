@@ -4,9 +4,9 @@ A full-stack RAG (Retrieval-Augmented Generation) document Q&A system built with
 
 The project separates the workflow into two major areas:
 
-- **Q&A**
+- **Q&A**  
   Ask questions against ingested documents and inspect citations.
-- **Upload / Ingest**
+- **Upload / Ingest**  
   Upload files, create document records, ingest content, and preview generated chunks.
 
 ---
@@ -44,9 +44,11 @@ It is intended as both a practical RAG application and a reference architecture 
 
 ### Frontend
 - Next.js App Router
+- React
 - TypeScript
 - Tailwind CSS
 - shadcn/ui
+- Framer Motion
 - `next-intl` i18n support
 - Q&A interface
 - Upload / ingest workflow
@@ -63,36 +65,8 @@ It is intended as both a practical RAG application and a reference architecture 
 
 ---
 
-## Tech Stack
-
-### Backend
-- FastAPI
-- SQLAlchemy
-- Alembic
-- PostgreSQL
-- pgvector
-- psycopg2
-
-### Frontend
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
-- shadcn/ui
-- Framer Motion
-- next-intl
-
-### AI / Retrieval
-- Embedding service
-- LLM service
-- Query rewrite service
-- Hybrid search pipeline
-
----
-
 ## UI Preview
 
-Add screenshots after you prepare them.
 
 ### QA Page
 ![QA Page](./docs/images/qa-page.png)
