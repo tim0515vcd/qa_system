@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 import { Check, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 type Props = {
   content: string;
@@ -13,13 +12,12 @@ type Props = {
 
 export function MarkdownAnswer({ content }: Props) {
   return (
-    <div className="max-w-none text-slate-800">
+    <div className="prose prose-slate max-w-none">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
         components={{
           h1: ({ children }) => (
-            <h1 className="mb-4 mt-8 text-2xl font-semibold tracking-tight text-slate-900">
+            <h1 className="mb-4 mt-8 text-2xl font-semibold tracking-tight text-slate-900 first:mt-0">
               {children}
             </h1>
           ),
@@ -124,6 +122,7 @@ function CodeBlock({
   className?: string;
   language?: string;
 }) {
+  const t = useTranslations("Markdown");
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -161,7 +160,7 @@ function CodeBlock({
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch (error) {
-      console.error("複製失敗:", error);
+      console.error("copy failed:", error);
       setCopied(false);
     }
   }
@@ -179,12 +178,12 @@ function CodeBlock({
           {copied ? (
             <>
               <Check className="mr-1 h-4 w-4" />
-              已複製
+              {t("copied")}
             </>
           ) : (
             <>
               <Copy className="mr-1 h-4 w-4" />
-              複製
+              {t("copy")}
             </>
           )}
         </button>

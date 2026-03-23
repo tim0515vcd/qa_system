@@ -20,7 +20,8 @@
     "advanced": "進階設定",
     "clearChat": "清除對話",
     "citationCount": "Citation 數量",
-    "apiBasePlaceholder": "http://localhost:8000"
+    "apiBasePlaceholder": "http://localhost:8000",
+    "developerSettings": "開發者設定"
   },
   "Answer": {
     "startTitle": "開始你的問答",
@@ -34,7 +35,16 @@
     "matched": "命中",
     "notMatched": "未命中",
     "expandFullContent": "展開完整內容",
-    "collapseFullContent": "收起完整內容"
+    "collapseFullContent": "收起完整內容",
+    "answerLabel": "AI 回答",
+    "copyAnswer": "複製答案",
+    "copied": "已複製",
+    "sourceSummaryTitle": "來源摘要",
+    "sourceSummaryDescription": "顯示命中的主要片段，方便快速確認答案依據",
+    "sourcesCount": "{count} 筆來源",
+    "chunkLabel": "chunk {index}",
+    "scoreLabel": "score {score}",
+    "chunkIdLabel": "chunk_id"
   },
   "Upload": {
     "title": "文件上傳與 Ingest",
@@ -44,7 +54,7 @@
     "browse": "選擇檔案",
     "hint": "目前後端 ingest 只支援 markdown，建議先上傳 .md / .txt。",
     "selectedFiles": "已選擇 {count} 個檔案",
-    "submitMultiple": "上傳並執行多檔 ingest",
+    "submit": "上傳並執行多檔 ingest",
     "processing": "處理中...",
     "clearQueue": "清除列表",
     "queueTitle": "處理進度",
@@ -57,7 +67,7 @@
     },
     "filters": {
       "all": "全部",
-      "failedOnly": "只看失敗"
+      "failed": "只看失敗"
     },
     "summary": {
       "total": "總數",
@@ -65,7 +75,11 @@
       "failed": "失敗",
       "processing": "處理中"
     },
-    "emptyFilteredQueue": "目前沒有符合篩選條件的項目。"
+    "queueEmpty": "目前沒有符合篩選條件的項目。",
+    "queueDescription": "可查看每筆文件的上傳與 ingest 狀態",
+    "clearSelection": "清除已選檔案",
+    "chunkCount": "{count} chunks",
+    "documentIdLabel": "document_id"
   },
   "IngestResult": {
     "title": "文件處理結果",
@@ -86,6 +100,30 @@
     "chunkLabel": "chunk #{index}",
     "tokenCount": "token_count {count}",
     "expandChunk": "展開",
-    "collapseChunk": "收合"
+    "collapseChunk": "收合",
+    "uploadDescription": "基本文件資訊與上傳結果",
+    "ingestDescription": "chunking 與索引處理結果",
+    "chunksDescription": "預覽已建立的 chunk 與切分結果",
+    "typeLabel": "type: {value}",
+    "langLabel": "lang: {value}"
+  },
+  "Markdown": {
+    "copy": "複製",
+    "copied": "已複製"
+  },
+  "Feedback": {
+    "title": "回饋",
+    "description": "送出 like / dislike。",
+    "reason": "原因",
+    "comment": "補充說明",
+    "commentPlaceholder": "補充說明，可留空",
+    "like": "Like",
+    "dislike": "Dislike",
+    "searchQueryId": "目前 search_query_id",
+    "reasons": {
+      "relevant": "相關",
+      "notRelevant": "不相關",
+      "incomplete": "不完整"
+    }
   }
 }

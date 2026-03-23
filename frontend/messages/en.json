@@ -20,7 +20,8 @@
     "advanced": "Advanced settings",
     "clearChat": "Clear chat",
     "citationCount": "Citation count",
-    "apiBasePlaceholder": "http://localhost:8000"
+    "apiBasePlaceholder": "http://localhost:8000",
+    "developerSettings": "Developer settings"
   },
   "Answer": {
     "startTitle": "Start a conversation",
@@ -34,7 +35,16 @@
     "matched": "matched",
     "notMatched": "not matched",
     "expandFullContent": "Expand full content",
-    "collapseFullContent": "Collapse full content"
+    "collapseFullContent": "Collapse full content",
+    "answerLabel": "AI Answer",
+    "copyAnswer": "Copy answer",
+    "copied": "Copied",
+    "sourceSummaryTitle": "Source summary",
+    "sourceSummaryDescription": "Shows the main matched snippets so you can quickly verify the basis of the answer.",
+    "sourcesCount": "{count} sources",
+    "chunkLabel": "chunk {index}",
+    "scoreLabel": "score {score}",
+    "chunkIdLabel": "chunk_id"
   },
   "Upload": {
     "title": "Upload & Ingest Document",
@@ -44,7 +54,7 @@
     "browse": "Choose files",
     "hint": "The backend currently supports markdown ingest only. Please upload .md / .txt first.",
     "selectedFiles": "{count} file(s) selected",
-    "submitMultiple": "Upload and run ingest for multiple files",
+    "submit": "Upload and run ingest for multiple files",
     "processing": "Processing...",
     "clearQueue": "Clear list",
     "queueTitle": "Processing queue",
@@ -57,7 +67,7 @@
     },
     "filters": {
       "all": "All",
-      "failedOnly": "Failed only"
+      "failed": "Failed only"
     },
     "summary": {
       "total": "Total",
@@ -65,7 +75,11 @@
       "failed": "Failed",
       "processing": "Processing"
     },
-    "emptyFilteredQueue": "No items match the current filter."
+    "queueEmpty": "No items match the current filter.",
+    "queueDescription": "Review the upload and ingest status for each document.",
+    "clearSelection": "Clear selection",
+    "chunkCount": "{count} chunks",
+    "documentIdLabel": "document_id"
   },
   "IngestResult": {
     "title": "Document Processing Result",
@@ -86,6 +100,30 @@
     "chunkLabel": "chunk #{index}",
     "tokenCount": "token_count {count}",
     "expandChunk": "Expand",
-    "collapseChunk": "Collapse"
+    "collapseChunk": "Collapse",
+    "uploadDescription": "Basic document information and upload result",
+    "ingestDescription": "Chunking and indexing result",
+    "chunksDescription": "Preview the created chunks and split result",
+    "typeLabel": "type: {value}",
+    "langLabel": "lang: {value}"
+  },
+  "Markdown": {
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "Feedback": {
+    "title": "Feedback",
+    "description": "Submit like / dislike.",
+    "reason": "Reason",
+    "comment": "Comment",
+    "commentPlaceholder": "Optional comment",
+    "like": "Like",
+    "dislike": "Dislike",
+    "searchQueryId": "Current search_query_id",
+    "reasons": {
+      "relevant": "Relevant",
+      "notRelevant": "Not relevant",
+      "incomplete": "Incomplete"
+    }
   }
 }

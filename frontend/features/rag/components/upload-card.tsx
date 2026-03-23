@@ -104,8 +104,8 @@ export function UploadCard({
   }, [filter, queue]);
 
   return (
-    <Card className="mx-auto w-full max-w-3xl rounded-3xl border shadow-sm">
-      <CardHeader className="space-y-2 pb-4 text-center">
+    <Card className="w-full rounded-3xl border shadow-sm">
+      <CardHeader className="space-y-2 pb-4">
         <CardTitle className="text-2xl font-semibold tracking-tight">
           {t("title")}
         </CardTitle>
@@ -124,7 +124,7 @@ export function UploadCard({
           onChange={(e) => handlePickFiles(Array.from(e.target.files ?? []))}
         />
 
-        <div className="space-y-3">
+        <div className="space-y-3 rounded-[28px] border bg-white p-4">
           <div
             role="button"
             tabIndex={0}
@@ -148,9 +148,7 @@ export function UploadCard({
             <div
               className={cn(
                 "mb-4 flex h-14 w-14 items-center justify-center rounded-2xl transition",
-                dragging
-                  ? "bg-slate-900 text-white"
-                  : "bg-white text-slate-700",
+                dragging ? "bg-slate-900 text-white" : "bg-white text-slate-700",
               )}
             >
               <Upload className="h-6 w-6" />
@@ -192,165 +190,233 @@ export function UploadCard({
                   </div>
                 ))}
               </div>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  onClick={() => onSubmit(files)}
+                  disabled={loading || !files.length}
+                  className="rounded-2xl"
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  {t("submit")}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-2xl"
+                  onClick={() => setFiles([])}
+                  disabled={loading}
+                >
+                  {t("clearSelection")}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {(message || error) && (
+            <div
+              className={cn(
+                "rounded-2xl border px-4 py-3 text-sm leading-7",
+                error
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-slate-200 bg-slate-50 text-slate-700",
+              )}
+            >
+              {error ?? message}
             </div>
           )}
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Button
-            className="flex-1 rounded-2xl py-6 text-base"
-            disabled={!files.length || loading}
-            onClick={() => files.length && onSubmit(files)}
-          >
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="mr-2 h-4 w-4" />
-            )}
-            {loading ? t("processing") : t("submitMultiple")}
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-2xl"
-            onClick={onClearQueue}
-            disabled={!queue.length}
-          >
-            {t("clearQueue")}
-          </Button>
+        <div className="grid gap-3 sm:grid-cols-4">
+          <SummaryCard
+            label={t("summary.total")}
+            value={queueSummary.total}
+            tone="default"
+          />
+          <SummaryCard
+            label={t("summary.success")}
+            value={queueSummary.success}
+            tone="success"
+          />
+          <SummaryCard
+            label={t("summary.processing")}
+            value={queueSummary.processing}
+            tone="warning"
+          />
+          <SummaryCard
+            label={t("summary.failed")}
+            value={queueSummary.failed}
+            tone="error"
+          />
         </div>
 
-        {message && (
-          <div className="rounded-2xl border bg-white p-4 text-sm leading-7 text-slate-600">
-            {message}
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-7 text-red-700">
-            {error}
-          </div>
-        )}
-
-        {!!queue.length && (
-          <div className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="text-sm font-medium text-slate-900">
+        <div className="rounded-[28px] border bg-white p-4">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="text-base font-semibold text-slate-900">
                 {t("queueTitle")}
               </div>
-
-              <div className="inline-flex items-center gap-2 self-start rounded-xl border bg-white p-1 shadow-sm">
-                <Button
-                  type="button"
-                  variant={filter === "all" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-lg"
-                  onClick={() => setFilter("all")}
-                >
-                  <Filter className="mr-2 h-4 w-4" />
-                  {t("filters.all")}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant={filter === "failed" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-lg"
-                  onClick={() => setFilter("failed")}
-                >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  {t("filters.failedOnly")}
-                </Button>
+              <div className="text-sm text-slate-500">
+                {t("queueDescription")}
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-4">
-              <SummaryCard
-                label={t("summary.total")}
-                value={queueSummary.total}
-                tone="default"
-              />
-              <SummaryCard
-                label={t("summary.success")}
-                value={queueSummary.success}
-                tone="success"
-              />
-              <SummaryCard
-                label={t("summary.failed")}
-                value={queueSummary.failed}
-                tone="error"
-              />
-              <SummaryCard
-                label={t("summary.processing")}
-                value={queueSummary.processing + queueSummary.idle}
-                tone="warning"
-              />
-            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                type="button"
+                variant={filter === "all" ? "default" : "outline"}
+                size="sm"
+                className="rounded-xl"
+                onClick={() => setFilter("all")}
+              >
+                <Filter className="mr-2 h-4 w-4" />
+                {t("filters.all")}
+              </Button>
 
-            {!filteredQueue.length ? (
-              <div className="rounded-2xl border border-dashed p-6 text-center text-sm text-slate-500">
-                {t("emptyFilteredQueue")}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredQueue.map((item) => (
+              <Button
+                type="button"
+                variant={filter === "failed" ? "default" : "outline"}
+                size="sm"
+                className="rounded-xl"
+                onClick={() => setFilter("failed")}
+              >
+                <XCircle className="mr-2 h-4 w-4" />
+                {t("filters.failed")}
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="rounded-xl"
+                onClick={onClearQueue}
+                disabled={!queue.length}
+              >
+                {t("clearQueue")}
+              </Button>
+            </div>
+          </div>
+
+          {!filteredQueue.length ? (
+            <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-slate-500">
+              {t("queueEmpty")}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredQueue.map((item) => {
+                const isSelected = selectedQueueId === item.id;
+                const isProcessing =
+                  item.status === "uploading" || item.status === "ingesting";
+                const chunkCount = item.ingestResult?.chunks_created ?? null;
+
+                return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => onSelectQueueItem(item.id)}
                     className={cn(
-                      "w-full rounded-2xl border bg-white p-4 text-left text-sm transition",
-                      selectedQueueId === item.id
-                        ? "border-slate-900 ring-1 ring-slate-900"
-                        : "hover:border-slate-400",
+                      "w-full rounded-2xl border px-4 py-4 text-left transition",
+                      isSelected
+                        ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                        : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white",
                     )}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <div className="truncate font-medium text-slate-900">
+                        <div
+                          className={cn(
+                            "truncate text-sm font-medium",
+                            isSelected ? "text-white" : "text-slate-900",
+                          )}
+                        >
                           {item.fileName}
                         </div>
 
-                        <div className="mt-2">
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
                           <StatusBadge
                             label={renderStatus(item.status, t)}
                             status={item.status}
+                            inverted={isSelected}
                           />
+
+                          {item.ingestResult?.status && (
+                            <MiniInfoBadge
+                              label={item.ingestResult.status}
+                              inverted={isSelected}
+                            />
+                          )}
+
+                          {typeof chunkCount === "number" && (
+                            <MiniInfoBadge
+                              label={`${chunkCount} chunks`}
+                              inverted={isSelected}
+                            />
+                          )}
                         </div>
                       </div>
 
                       <div className="shrink-0">
                         {item.status === "success" && (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                          <CheckCircle2
+                            className={cn(
+                              "h-5 w-5",
+                              isSelected ? "text-white" : "text-green-600",
+                            )}
+                          />
                         )}
-                        {(item.status === "uploading" ||
-                          item.status === "ingesting") && (
-                          <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+                        {isProcessing && (
+                          <Loader2
+                            className={cn(
+                              "h-5 w-5 animate-spin",
+                              isSelected ? "text-white/80" : "text-slate-500",
+                            )}
+                          />
                         )}
                         {item.status === "error" && (
-                          <XCircle className="h-5 w-5 text-red-600" />
+                          <XCircle
+                            className={cn(
+                              "h-5 w-5",
+                              isSelected ? "text-white" : "text-red-600",
+                            )}
+                          />
                         )}
                       </div>
                     </div>
 
                     {item.error && (
-                      <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">
+                      <div
+                        className={cn(
+                          "mt-3 rounded-xl border px-3 py-2 text-sm",
+                          isSelected
+                            ? "border-white/15 bg-white/10 text-white/90"
+                            : "border-red-200 bg-red-50 text-red-700",
+                        )}
+                      >
                         {item.error}
                       </div>
                     )}
 
                     {item.uploadResult && (
-                      <div className="mt-3 text-xs text-slate-500">
+                      <div
+                        className={cn(
+                          "mt-3 text-xs",
+                          isSelected ? "text-white/70" : "text-slate-500",
+                        )}
+                      >
                         document_id: {item.uploadResult.document_id}
                       </div>
                     )}
                   </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -383,23 +449,48 @@ function SummaryCard({
 function StatusBadge({
   label,
   status,
+  inverted = false,
 }: {
   label: string;
   status: UploadQueueItem["status"];
+  inverted?: boolean;
 }) {
-  const className = {
-    idle: "border-slate-200 bg-slate-100 text-slate-700",
-    uploading: "border-sky-200 bg-sky-50 text-sky-700",
-    ingesting: "border-indigo-200 bg-indigo-50 text-indigo-700",
-    success: "border-green-200 bg-green-50 text-green-700",
-    error: "border-red-200 bg-red-50 text-red-700",
-  }[status];
+  const className = inverted
+    ? "border-white/15 bg-white/10 text-white"
+    : {
+        idle: "border-slate-200 bg-slate-100 text-slate-700",
+        uploading: "border-sky-200 bg-sky-50 text-sky-700",
+        ingesting: "border-indigo-200 bg-indigo-50 text-indigo-700",
+        success: "border-green-200 bg-green-50 text-green-700",
+        error: "border-red-200 bg-red-50 text-red-700",
+      }[status];
 
   return (
     <span
       className={cn(
         "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
         className,
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+function MiniInfoBadge({
+  label,
+  inverted = false,
+}: {
+  label: string;
+  inverted?: boolean;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2.5 py-1 text-xs font-medium",
+        inverted
+          ? "border-white/15 bg-white/10 text-white"
+          : "border-slate-200 bg-white text-slate-600",
       )}
     >
       {label}

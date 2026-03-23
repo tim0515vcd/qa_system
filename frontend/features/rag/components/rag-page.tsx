@@ -4,9 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { env } from "@/lib/env";
-import {LocaleSwitcher} from "@/components/locale-switcher";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { DEFAULT_LIMIT, DEFAULT_QUERY } from "../constants/rag";
 import { useDocumentIngest } from "../hooks/use-document-ingest";
 import { useRagQa } from "../hooks/use-rag-qa";
@@ -26,7 +25,6 @@ export function RagPage() {
 
   const {
     loading,
-    error,
     messages,
     feedbackLoading,
     feedbackMessage,
@@ -38,7 +36,6 @@ export function RagPage() {
   const {
     uploading,
     ingesting,
-    chunkLoading,
     error: documentError,
     message: documentMessage,
     queue,
@@ -62,7 +59,6 @@ export function RagPage() {
   const handleFeedback = (searchQueryId: string, type: FeedbackType) => {
     runFeedback(searchQueryId, type, feedbackReason, feedbackComment);
   };
-
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -95,10 +91,6 @@ export function RagPage() {
             <div className="flex min-h-[calc(100vh-180px)] flex-col">
               <AnswerCard
                 messages={messages}
-                loading={loading}
-                error={error}
-                feedbackReason={feedbackReason}
-                feedbackComment={feedbackComment}
                 feedbackLoading={feedbackLoading}
                 feedbackMessage={feedbackMessage}
                 onSubmitFeedback={handleFeedback}
@@ -109,6 +101,7 @@ export function RagPage() {
                 query={query}
                 limit={limit}
                 loading={loading}
+                showDevTools={process.env.NODE_ENV !== "production"}
                 onApiBaseChange={setApiBase}
                 onQueryChange={setQuery}
                 onLimitChange={setLimit}
@@ -120,24 +113,30 @@ export function RagPage() {
           </TabsContent>
 
           <TabsContent value="upload" className="mt-0">
-            <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-              <UploadCard
-                uploading={uploading}
-                ingesting={ingesting}
-                message={documentMessage}
-                error={documentError}
-                queue={queue}
-                selectedQueueId={selectedQueueId}
-                onSelectQueueItem={setSelectedQueueId}
-                onSubmit={handleUploadAndIngest}
-                onClearQueue={clearQueue}
-              />
+            <div className="xl:h-[calc(100vh-220px)]">
+              <div className="grid h-full gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
+                <div className="min-h-0 overflow-y-auto overscroll-contain pr-1">
+                  <UploadCard
+                    uploading={uploading}
+                    ingesting={ingesting}
+                    message={documentMessage}
+                    error={documentError}
+                    queue={queue}
+                    selectedQueueId={selectedQueueId}
+                    onSelectQueueItem={setSelectedQueueId}
+                    onSubmit={handleUploadAndIngest}
+                    onClearQueue={clearQueue}
+                  />
+                </div>
 
-              <IngestResultCard
-                uploadResult={selectedItem?.uploadResult ?? null}
-                ingestResult={selectedItem?.ingestResult ?? null}
-                chunksResult={selectedItem?.chunksResult ?? null}
-              />
+                <div className="min-h-0 overflow-y-auto overscroll-contain pr-1">
+                  <IngestResultCard
+                    uploadResult={selectedItem?.uploadResult ?? null}
+                    ingestResult={selectedItem?.ingestResult ?? null}
+                    chunksResult={selectedItem?.chunksResult ?? null}
+                  />
+                </div>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

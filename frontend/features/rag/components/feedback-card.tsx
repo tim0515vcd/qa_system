@@ -1,6 +1,7 @@
 "use client";
 
 import { Loader2, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -35,16 +36,18 @@ export function FeedbackCard({
   onCommentChange,
   onSubmit,
 }: Props) {
+  const t = useTranslations("Feedback");
+
   return (
     <Card className="rounded-2xl shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg">Feedback</CardTitle>
-        <CardDescription>送出 like / dislike。</CardDescription>
+        <CardTitle className="text-lg">{t("title")}</CardTitle>
+        <CardDescription>{t("description")}</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="feedback-reason">Reason</Label>
+          <Label htmlFor="feedback-reason">{t("reason")}</Label>
           <Select
             value={feedbackReason}
             onValueChange={(value) => onReasonChange(value as FeedbackReason)}
@@ -53,20 +56,20 @@ export function FeedbackCard({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="relevant">relevant</SelectItem>
-              <SelectItem value="not_relevant">not_relevant</SelectItem>
-              <SelectItem value="incomplete">incomplete</SelectItem>
+              <SelectItem value="relevant">{t("reasons.relevant")}</SelectItem>
+              <SelectItem value="not_relevant">{t("reasons.notRelevant")}</SelectItem>
+              <SelectItem value="incomplete">{t("reasons.incomplete")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="feedback-comment">Comment</Label>
+          <Label htmlFor="feedback-comment">{t("comment")}</Label>
           <Textarea
             id="feedback-comment"
             value={feedbackComment}
             onChange={(e) => onCommentChange(e.target.value)}
-            placeholder="補充說明，可留空"
+            placeholder={t("commentPlaceholder")}
           />
         </div>
 
@@ -82,7 +85,7 @@ export function FeedbackCard({
             ) : (
               <ThumbsUp className="mr-2 h-4 w-4" />
             )}
-            Like
+            {t("like")}
           </Button>
 
           <Button
@@ -96,13 +99,13 @@ export function FeedbackCard({
             ) : (
               <ThumbsDown className="mr-2 h-4 w-4" />
             )}
-            Dislike
+            {t("dislike")}
           </Button>
         </div>
 
         {searchQueryId && (
           <div className="rounded-xl border bg-white p-3 text-sm">
-            <div className="font-medium">目前 search_query_id</div>
+            <div className="font-medium">{t("searchQueryId")}</div>
             <div className="mt-1 break-all text-slate-600">{searchQueryId}</div>
           </div>
         )}

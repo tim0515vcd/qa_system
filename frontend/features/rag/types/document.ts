@@ -12,6 +12,9 @@ export type IngestDocumentResponse = {
   document_id: string;
   chunks_created: number;
   status: string;
+  parser_type?: string;
+  parser_version?: string;
+  content_language?: string;
 };
 
 export type DocumentChunkItem = {
@@ -19,6 +22,10 @@ export type DocumentChunkItem = {
   document_id: string;
   chunk_index: number;
   content: string;
+  section_heading?: string | null;
+  heading_level?: number | null;
+  chunk_type?: string | null;
+  content_language?: string | null;
   page_number: number | null;
   start_offset: number | null;
   end_offset: number | null;
