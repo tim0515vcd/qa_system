@@ -218,41 +218,6 @@ sudo bash setup_rag_stack.sh
 
 ---
 
-## System Flow
-
-```mermaid
-flowchart TD
-    subgraph Ingestion Pipeline
-        A[Upload document] --> B[Create document metadata]
-        B --> C[Parse content]
-        C --> D[Chunking]
-        D --> E[Generate embeddings]
-        E --> F[Save chunks]
-        F --> G[Save vectors to PostgreSQL / pgvector]
-    end
-
-    subgraph Retrieval and QA Pipeline
-        H[User question] --> I[Query rewrite service]
-        I --> J[Search service]
-        J --> K[Full-text retrieval]
-        J --> L[Vector retrieval]
-        K --> M[Hybrid ranking]
-        L --> M
-        M --> N[Top-K chunks]
-        N --> O[QA service builds prompt]
-        O --> P[LLM service generates answer]
-        P --> Q[Answer with citations]
-    end
-
-    subgraph Feedback Pipeline
-        Q --> R[User submits like / dislike]
-        R --> S[Save feedback]
-    end
-
-    G --> J
-
----
-
 ## Engineering Focus
 
 This project is especially focused on the following engineering concerns:
@@ -293,3 +258,38 @@ I built this project independently, including:
 
 This is a portfolio project intended to demonstrate practical backend and full-stack engineering ability in AI applications, especially around RAG, search, and internal knowledge systems.
 
+
+---
+
+## System Flow
+
+```mermaid
+flowchart TD
+    subgraph Ingestion Pipeline
+        A[Upload document] --> B[Create document metadata]
+        B --> C[Parse content]
+        C --> D[Chunking]
+        D --> E[Generate embeddings]
+        E --> F[Save chunks]
+        F --> G[Save vectors to PostgreSQL / pgvector]
+    end
+
+    subgraph Retrieval and QA Pipeline
+        H[User question] --> I[Query rewrite service]
+        I --> J[Search service]
+        J --> K[Full-text retrieval]
+        J --> L[Vector retrieval]
+        K --> M[Hybrid ranking]
+        L --> M
+        M --> N[Top-K chunks]
+        N --> O[QA service builds prompt]
+        O --> P[LLM service generates answer]
+        P --> Q[Answer with citations]
+    end
+
+    subgraph Feedback Pipeline
+        Q --> R[User submits like / dislike]
+        R --> S[Save feedback]
+    end
+
+    G --> J
