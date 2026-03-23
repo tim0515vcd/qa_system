@@ -254,6 +254,7 @@ flowchart TD
 
     G --> J
 ```
+</details> 
 
 ---
 
