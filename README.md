@@ -80,6 +80,72 @@ Shows multi-file upload, ingest progress, processing queue, and chunk preview fo
 
 ---
 
+## Quick Start
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repo-url>
+cd <your-project-folder>
+```
+
+### 2. Configure environment variables
+
+#### Backend `.env`
+
+```env
+APP_ENV=dev
+DEBUG=true
+
+POSTGRES_USER=<raguser>
+POSTGRES_PASSWORD=<ragpass>
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_DB=<ragdb>
+
+GEMINI_API_KEY=<your-api-key>
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_EMBEDDING_MODEL=gemini-embedding-001
+
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://<your ip>:3000
+
+```
+
+#### Frontend `.env.local`
+
+```env
+NEXT_PUBLIC_API_BASE=http://<your ip>:8000
+```
+
+### 4. Install pkg and run the service 
+
+```bash
+cd <your folder>
+sudo bash setup_rag_stack.sh
+```
+Frontend runs at:
+
+```text
+http://localhost:3000 or http://<your ip>:3000
+```
+
+Backend runs at:
+
+```text
+http://localhost:8000 or http://<your ip>:8000
+```
+
+### 5. Use the app
+
+1. Open the Upload / Ingest page
+2. Upload a document
+3. Run ingestion
+4. Preview generated chunks
+5. Open the QA page
+6. Ask questions against the ingested content
+
+---
+
 ## System Flow
 
 ```mermaid
