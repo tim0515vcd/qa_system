@@ -1,11 +1,11 @@
 {
   "Common": {
-    "appName": "RAG Console",
+    "appName": "QA System",
     "language": "語言"
   },
   "RagPage": {
-    "title": "RAG Console",
-    "subtitle": "文件處理與問答操作分開",
+    "title": "QA System",
+    "subtitle": "基於RAG的文件處理與問答系統",
     "tabs": {
       "qa": "問答查詢",
       "upload": "文件上傳"

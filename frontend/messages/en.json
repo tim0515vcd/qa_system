@@ -1,11 +1,11 @@
 {
   "Common": {
-    "appName": "RAG Console",
+    "appName": "QA System",
     "language": "Language"
   },
   "RagPage": {
-    "title": "RAG Console",
-    "subtitle": "Separate document processing from Q&A",
+    "title": "QA System",
+    "subtitle": "RAG-Powered Document Q&A System",
     "tabs": {
       "qa": "Q&A",
       "upload": "Upload"

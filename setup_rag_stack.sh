@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="${1:-/home/euler/QA_SYSTEM}"
+PROJECT_DIR="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 BACKEND_DIR="${PROJECT_DIR}/backend"
 FRONTEND_DIR="${PROJECT_DIR}/frontend"
 
@@ -62,6 +62,9 @@ fi
 
 run_stack() {
   cd "$PROJECT_DIR"
+
+  echo "==> Fixing entrypoint permissions..."
+  chmod +x "${BACKEND_DIR}/entrypoint.sh"
 
   echo "==> Docker version"
   docker --version

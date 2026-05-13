@@ -120,7 +120,7 @@ def answer_question(query: str, db, limit: int = 5):
         }
 
     # 挑真正送進 LLM 的 context rows
-    context_rows = select_context_rows(results, max_context_chunks=3)
+    context_rows = select_context_rows(results, max_context_chunks=5)
 
     context_blocks = []
     for row in context_rows:
